@@ -1,34 +1,48 @@
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/domain/entities/drawing_line.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Para PointMode.polygon
 
 class DrawingPainter extends CustomPainter {
   final List<DrawingLine> lines;
-
+  
   DrawingPainter({required this.lines});
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Itera sobre cada linha que temos no nosso estado
-    for (var line in lines) {
-      // Configura o pincel (Paint) com as propriedades da linha
+    print("🎨 DrawingPainter: ${lines.length} linhas, Size: $size");
+    
+    for (final line in lines) {
+      if (line.points.isEmpty) continue;
+      
+      print("  📍 Linha com ${line.points.length} pontos");
+
       final paint = Paint()
         ..color = line.color
         ..strokeWidth = line.strokeWidth
-        ..strokeCap = StrokeCap.round // Deixa as pontas das linhas arredondadas
+        ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke;
 
-      // Se a linha tem mais de um ponto, desenha!
-      if (line.points.length > 1) {
-        // O canvas.drawPoints desenha uma linha conectando todos os pontos
-        canvas.drawPoints(PointMode.polygon, line.points, paint);
+      // COORDENADAS NORMALIZADAS (0.0 a 1.0) convertidas para pixels
+      final Path path = Path();
+      final firstPoint = Offset(
+        line.points.first.dx * size.width,
+        line.points.first.dy * size.height,
+      );
+      path.moveTo(firstPoint.dx, firstPoint.dy);
+
+      for (int i = 1; i < line.points.length; i++) {
+        final point = Offset(
+          line.points[i].dx * size.width,
+          line.points[i].dy * size.height,
+        );
+        path.lineTo(point.dx, point.dy);
       }
+
+      canvas.drawPath(path, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant DrawingPainter oldDelegate) {
-    // Redesenha a tela apenas se a lista de linhas for diferente
+  bool shouldRepaint(DrawingPainter oldDelegate) {
     return oldDelegate.lines != lines;
   }
 }
