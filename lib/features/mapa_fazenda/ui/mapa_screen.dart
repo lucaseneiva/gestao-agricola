@@ -12,13 +12,17 @@ class MapaScreen extends ConsumerStatefulWidget {
 }
 
 class _MapaScreenState extends ConsumerState<MapaScreen> {
-  // Crie o controller
   late final TransformationController _transformationController;
+  final GlobalKey _mapKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+
     _transformationController = TransformationController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _centerAndZoomMap();
+    });
   }
 
   @override
@@ -63,24 +67,31 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
             const SizedBox(height: 16),
             Expanded(
               child: ClipRRect(
+                key: _mapKey,
                 borderRadius: BorderRadius.circular(12),
-                child: InteractiveViewer(
-                  transformationController: _transformationController,
-                  minScale:
-                      1.0, // Não permite diminuir mais que o tamanho original
-                  maxScale: 4.0, // Permite um zoom de até 4x
-                  boundaryMargin: const EdgeInsets.all(
-                    20.0,
-                  ), // Margem para arrastar
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/fazenda_murilo.svg',
-                        fit: BoxFit.contain,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    color: Colors.black,
+                    child: InteractiveViewer(
+                      transformationController: _transformationController,
+                      minScale:
+                          1.0, // Não permite diminuir mais que o tamanho original
+                      maxScale: 4.0, // Permite um zoom de até 4x
+                      boundaryMargin: const EdgeInsets.all(
+                        20.0,
+                      ), // Margem para arrastar
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/images/fazenda_murilo.svg',
+                            fit: BoxFit.contain,
+                          ),
+                          // TODO: O CustomPaint do desenho virá aqui dentro
+                        ],
                       ),
-                      // TODO: O CustomPaint do desenho virá aqui dentro
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -89,6 +100,40 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
         ),
       ),
     );
+  }
+
+  // Dentro de: class _MapaScreenState extends ConsumerState<MapaScreen> { ... }
+
+  void _centerAndZoomMap() {
+    final context = _mapKey.currentContext ;
+    if(context == null) return;
+
+    // Garante que o widget ainda está na tela antes de fazer qualquer coisa
+    if (!mounted || context.size == null) return;
+    
+    // 1. Defina o nível de zoom inicial que você deseja.
+    //    Experimente valores como 1.5, 2.0, etc.
+    const double initialScale = 2.5;
+    
+    // 2. Obtenha o tamanho da "janela" do mapa (o widget Expanded).
+    final Size screenSize = context.size!;
+    final double screenWidth = screenSize.width;
+    final double screenHeight = screenSize.height;
+
+    // 3. Calcule o deslocamento (translação) necessário para manter o centro.
+    //    Quando damos zoom, o tamanho "extra" precisa ser movido para
+    //    a esquerda e para cima pela metade, para que o centro permaneça no centro.
+    final double tx = -screenWidth * (initialScale - 1) / 2;
+    final double ty = -screenHeight * (initialScale - 1) / 2;
+
+    // 4. Crie a matriz de transformação final.
+    //    Lembre-se da ordem: primeiro translação, depois escala.
+    final Matrix4 initialMatrix = Matrix4.identity()
+      ..translate(tx, ty)
+      ..scale(initialScale);
+
+    // 5. Aplique a matriz ao nosso controller.
+    _transformationController.value = initialMatrix;
   }
 
   Widget _buildWeekSelector(
