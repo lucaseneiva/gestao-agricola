@@ -3,7 +3,7 @@ import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_st
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/widgets/drawing_painter.dart';
+
 
 class MapaScreen extends ConsumerStatefulWidget {
   const MapaScreen({super.key});
@@ -13,13 +13,11 @@ class MapaScreen extends ConsumerStatefulWidget {
 }
 
 class _MapaScreenState extends ConsumerState<MapaScreen> {
-  final GlobalKey _mapKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     final currentDate = ref.watch(currentDateProvider);
     final screenMode = ref.watch(screenModeStateProvider);
-    final lines = ref.watch(drawingStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -47,78 +45,8 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
             _buildWeekSelector(context, ref, currentDate),
             const SizedBox(height: 16),
             _buildFilterButtons(context, ref),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                // SOLUÇÃO SIMPLES: Stack FORA do InteractiveViewer
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // CAMADA 1: Mapa SEM desenhos (pode dar zoom/pan)
-                    IgnorePointer(
-                      ignoring: screenMode == ScreenMode.editing,
-                      child: SvgPicture.asset(
-                        'assets/images/fazenda_murilo.svg',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-
-                    // CAMADA 2: Desenho COM interação (modo edição)
-                    if (screenMode == ScreenMode.editing)
-                      Positioned.fill(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return GestureDetector(
-                              key: _mapKey,
-                              onPanStart: (details) {
-                                // NORMALIZA: converte pixels para 0.0-1.0
-                                final normalized = Offset(
-                                  details.localPosition.dx / constraints.maxWidth,
-                                  details.localPosition.dy / constraints.maxHeight,
-                                );
-                                print("🎨 Normalized: $normalized");
-                                ref.read(drawingStateProvider.notifier).startLine(
-                                      normalized,
-                                      Colors.red.withOpacity(0.7),
-                                      8.0,
-                                    );
-                              },
-                              onPanUpdate: (details) {
-                                // NORMALIZA: converte pixels para 0.0-1.0
-                                final normalized = Offset(
-                                  details.localPosition.dx / constraints.maxWidth,
-                                  details.localPosition.dy / constraints.maxHeight,
-                                );
-                                ref
-                                    .read(drawingStateProvider.notifier)
-                                    .addPoint(normalized);
-                              },
-                              child: Container(
-                                color: Colors.blue.withOpacity(0.1),
-                                child: CustomPaint(
-                                  painter: DrawingPainter(lines: lines),
-                                  child: Container(),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                    // CAMADA 3: Desenho APENAS visualização (modo viewing)
-                    if (screenMode == ScreenMode.viewing)
-                      IgnorePointer(
-                        child: CustomPaint(
-                          painter: DrawingPainter(lines: lines),
-                          size: Size.infinite,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            const SizedBox(height: 16)
+		  ]  
         ),
       ),
     );
