@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/domain/entities/drawing_line.dart'; 
+import 'package:flutter/material.dart';
 part 'mapa_state_providers.g.dart';
 
 
@@ -46,5 +47,45 @@ class ScreenModeState extends _$ScreenModeState {
 
   void toggleMode() {
     state = state == ScreenMode.viewing ? ScreenMode.editing : ScreenMode.viewing;
+  }
+}
+
+
+@riverpod
+class DrawingState extends _$DrawingState {
+  // O estado será uma lista de linhas
+  @override
+  List<DrawingLine> build() {
+    return [];
+  }
+
+  // Ação: Começa uma nova linha quando o usuário toca na tela
+  void startLine(Offset startPoint, Color color, double width) {
+    state = [
+      ...state,
+      DrawingLine(points: [startPoint], color: color, strokeWidth: width),
+    ];
+  }
+
+  // Ação: Adiciona um ponto à última linha que está sendo desenhada
+  void addPoint(Offset point) {
+    if (state.isEmpty) return; // Segurança, não deve acontecer
+
+    // Pega a última linha da lista
+    final lastLine = state.last;
+    
+    // Cria uma nova lista de pontos para a última linha
+    final newPoints = [...lastLine.points, point];
+    
+    // Atualiza a última linha com a nova lista de pontos
+    final updatedLine = lastLine.copyWith(points: newPoints);
+
+    // Atualiza o estado: substitui a última linha antiga pela atualizada
+    state = [...state.sublist(0, state.length - 1), updatedLine];
+  }
+  
+  // Ação: Limpa todos os desenhos
+  void clear() {
+    state = [];
   }
 }

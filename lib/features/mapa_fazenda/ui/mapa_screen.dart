@@ -3,6 +3,7 @@ import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_st
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/widgets/drawing_painter.dart';
 
 class MapaScreen extends ConsumerStatefulWidget {
   const MapaScreen({super.key});
@@ -36,6 +37,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
   Widget build(BuildContext context) {
     final currentDate = ref.watch(currentDateProvider);
     final screenMode = ref.watch(screenModeStateProvider);
+    final lines = ref.watch(drawingStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,30 +71,69 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
               child: ClipRRect(
                 key: _mapKey,
                 borderRadius: BorderRadius.circular(12),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    color: Colors.black,
-                    child: InteractiveViewer(
+                // NOVA ESTRUTURA AQUI!
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // CAMADA 1: O VISUALIZADOR INTERATIVO (SÓ PARA EXIBIÇÃO)
+                    InteractiveViewer(
                       transformationController: _transformationController,
-                      minScale:
-                          1.0, // Não permite diminuir mais que o tamanho original
-                      maxScale: 4.0, // Permite um zoom de até 4x
-                      boundaryMargin: const EdgeInsets.all(
-                        20.0,
-                      ), // Margem para arrastar
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/fazenda_murilo.svg',
-                            fit: BoxFit.contain,
-                          ),
-                          // TODO: O CustomPaint do desenho virá aqui dentro
-                        ],
+                      panEnabled: screenMode == ScreenMode.viewing,
+                      scaleEnabled: screenMode == ScreenMode.viewing,
+                      minScale: 1.0,
+                      maxScale: 4.0,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SizedBox(
+                            width: constraints.maxWidth,
+                            height: constraints.maxHeight,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/fazenda_murilo.svg',
+                                  fit: BoxFit.contain,
+                                ),
+                                CustomPaint(
+                                  painter: DrawingPainter(lines: lines),
+                                  size: Size.infinite,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  ),
+
+                    // CAMADA 2: A TELA DE CAPTURA (SÓ APARECE NO MODO DE EDIÇÃO)
+                    if (screenMode == ScreenMode.editing)
+                      GestureDetector(
+                        onPanStart: (details) {
+                          final positionNoMapa = _transformToMapCoordinates(
+                            details.localPosition,
+                          );
+
+                          // TODO: Adicionar lógica de cor/espessura
+                          ref
+                              .read(drawingStateProvider.notifier)
+                              .startLine(
+                                positionNoMapa,
+                                Colors.red.withOpacity(0.7),
+                                8.0,
+                              );
+                        },
+                        onPanUpdate: (details) {
+                          final positionNoMapa = _transformToMapCoordinates(
+                            details.localPosition,
+                          );
+                          ref
+                              .read(drawingStateProvider.notifier)
+                              .addPoint(positionNoMapa);
+                        },
+                        // Damos uma cor transparente para garantir que o GestureDetector ocupe a área
+                        child: Container(color: Colors.transparent),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -102,19 +143,45 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
     );
   }
 
-  // Dentro de: class _MapaScreenState extends ConsumerState<MapaScreen> { ... }
+  Widget _buildDrawingCanvas(WidgetRef ref) {
+    // Lemos o estado das linhas aqui dentro
+    final lines = ref.watch(drawingStateProvider);
+
+    return GestureDetector(
+      onPanStart: (details) {
+        final positionNoMapa = _transformToMapCoordinates(
+          details.localPosition,
+        );
+
+        // TODO: Mudar cor/espessura dinamicamente
+        ref
+            .read(drawingStateProvider.notifier)
+            .startLine(positionNoMapa, Colors.red.withOpacity(0.7), 8.0);
+      },
+      onPanUpdate: (details) {
+        final positionNoMapa = _transformToMapCoordinates(
+          details.localPosition,
+        );
+        ref.read(drawingStateProvider.notifier).addPoint(positionNoMapa);
+      },
+      child: CustomPaint(
+        painter: DrawingPainter(lines: lines),
+        size: Size.infinite,
+      ),
+    );
+  }
 
   void _centerAndZoomMap() {
-    final context = _mapKey.currentContext ;
-    if(context == null) return;
+    final context = _mapKey.currentContext;
+    if (context == null) return;
 
     // Garante que o widget ainda está na tela antes de fazer qualquer coisa
     if (!mounted || context.size == null) return;
-    
+
     // 1. Defina o nível de zoom inicial que você deseja.
     //    Experimente valores como 1.5, 2.0, etc.
     const double initialScale = 2.5;
-    
+
     // 2. Obtenha o tamanho da "janela" do mapa (o widget Expanded).
     final Size screenSize = context.size!;
     final double screenWidth = screenSize.width;
@@ -205,5 +272,12 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
         ),
       ],
     );
+  }
+
+  Offset _transformToMapCoordinates(Offset positionOnScreen) {
+    final Matrix4 invertedMatrix = Matrix4.inverted(
+      _transformationController.value,
+    );
+    return MatrixUtils.transformPoint(invertedMatrix, positionOnScreen);
   }
 }
