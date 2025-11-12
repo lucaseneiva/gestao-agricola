@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'mapa_state_providers.g.dart';
 
@@ -45,5 +46,36 @@ class ScreenModeState extends _$ScreenModeState {
 
   void toggleMode() {
     state = state == ScreenMode.viewing ? ScreenMode.editing : ScreenMode.viewing;
+  }
+}
+
+
+// NOVO PROVIDER PARA O DESENHO
+@riverpod
+class DrawingPoints extends _$DrawingPoints {
+  // O estado será uma lista de "traços". Cada traço é uma lista de pontos.
+  @override
+  List<List<Offset>> build() {
+    return [];
+  }
+
+  // Inicia um novo traço quando o usuário toca na tela
+  void startStroke(Offset point) {
+    state = [...state, [point]];
+  }
+
+  // Adiciona um ponto ao traço atual enquanto o usuário arrasta o dedo
+  void addPoint(Offset point) {
+    if (state.isEmpty) return;
+    // Pega a lista de traços, exceto o último
+    final strokes = state.sublist(0, state.length - 1);
+    // Pega o último traço, adiciona o novo ponto e o coloca de volta na lista
+    final currentStroke = [...state.last, point];
+    state = [...strokes, currentStroke];
+  }
+
+  // Limpa todos os desenhos da tela
+  void clear() {
+    state = [];
   }
 }

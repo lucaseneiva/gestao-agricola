@@ -167,3 +167,56 @@ abstract class _$ScreenModeState extends $Notifier<ScreenMode> {
     element.handleValue(ref, created);
   }
 }
+
+@ProviderFor(DrawingPoints)
+const drawingPointsProvider = DrawingPointsProvider._();
+
+final class DrawingPointsProvider
+    extends $NotifierProvider<DrawingPoints, List<List<Offset>>> {
+  const DrawingPointsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'drawingPointsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$drawingPointsHash();
+
+  @$internal
+  @override
+  DrawingPoints create() => DrawingPoints();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<List<Offset>> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<List<Offset>>>(value),
+    );
+  }
+}
+
+String _$drawingPointsHash() => r'8b7651de51d0c43e9f7e1fce27b2ec40741d2a38';
+
+abstract class _$DrawingPoints extends $Notifier<List<List<Offset>>> {
+  List<List<Offset>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<List<List<Offset>>, List<List<Offset>>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<List<Offset>>, List<List<Offset>>>,
+              List<List<Offset>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
