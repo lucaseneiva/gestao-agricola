@@ -4,12 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class MapaScreen extends ConsumerWidget {
+class MapaScreen extends ConsumerStatefulWidget {
   const MapaScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // A leitura do estado continua igual
+  ConsumerState<MapaScreen> createState() => _MapaScreenState();
+}
+
+class _MapaScreenState extends ConsumerState<MapaScreen> {
+  // Crie o controller
+  late final TransformationController _transformationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController = TransformationController();
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  // Agora, mova o método build para dentro desta classe
+  @override
+  Widget build(BuildContext context) {
     final currentDate = ref.watch(currentDateProvider);
     final screenMode = ref.watch(screenModeStateProvider);
 
@@ -19,8 +39,12 @@ class MapaScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(
-              screenMode == ScreenMode.viewing ? Icons.edit_outlined : Icons.check,
-              color: screenMode == ScreenMode.viewing ? Colors.white : Colors.lightGreenAccent,
+              screenMode == ScreenMode.viewing
+                  ? Icons.edit_outlined
+                  : Icons.check,
+              color: screenMode == ScreenMode.viewing
+                  ? Colors.white
+                  : Colors.lightGreenAccent,
             ),
             onPressed: () {
               // A chamada da lógica agora é um método claro e explícito!
@@ -40,11 +64,24 @@ class MapaScreen extends ConsumerWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    SvgPicture.asset('assets/images/fazenda_murilo.svg', fit: BoxFit.cover),
-                  ],
+                child: InteractiveViewer(
+                  transformationController: _transformationController,
+                  minScale:
+                      1.0, // Não permite diminuir mais que o tamanho original
+                  maxScale: 4.0, // Permite um zoom de até 4x
+                  boundaryMargin: const EdgeInsets.all(
+                    20.0,
+                  ), // Margem para arrastar
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/fazenda_murilo.svg',
+                        fit: BoxFit.contain,
+                      ),
+                      // TODO: O CustomPaint do desenho virá aqui dentro
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -54,7 +91,11 @@ class MapaScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWeekSelector(BuildContext context, WidgetRef ref, DateTime currentDate) {
+  Widget _buildWeekSelector(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime currentDate,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -94,7 +135,9 @@ class MapaScreen extends ConsumerWidget {
               ref.read(selectedIssueProvider.notifier).setIssue(IssueType.pest);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: selectedIssue == IssueType.pest ? Theme.of(context).colorScheme.primary : Colors.grey,
+              backgroundColor: selectedIssue == IssueType.pest
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
             ),
           ),
         ),
@@ -104,10 +147,14 @@ class MapaScreen extends ConsumerWidget {
             icon: const Icon(Icons.sick),
             label: const Text('Doenças'),
             onPressed: () {
-              ref.read(selectedIssueProvider.notifier).setIssue(IssueType.disease);
+              ref
+                  .read(selectedIssueProvider.notifier)
+                  .setIssue(IssueType.disease);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: selectedIssue == IssueType.disease ? Theme.of(context).colorScheme.primary : Colors.grey,
+              backgroundColor: selectedIssue == IssueType.disease
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
             ),
           ),
         ),
