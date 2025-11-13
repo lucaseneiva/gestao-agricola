@@ -209,7 +209,7 @@ final class FarmDrawingsProvider
   }
 }
 
-String _$farmDrawingsHash() => r'9e2810a01192fd6c6dde7da803bb0d0dcd829d7f';
+String _$farmDrawingsHash() => r'fd19a5a152f27630c20fc83bfb3cbc5b4cc88100';
 
 abstract class _$FarmDrawings
     extends $Notifier<Map<String, Map<IssueType, List<List<Offset>>>>> {
@@ -285,3 +285,96 @@ final class CurrentDrawingProvider
 }
 
 String _$currentDrawingHash() => r'a86ed5ba42c0ef638ea366d7726a2fe628a5f07d';
+
+@ProviderFor(mapaRepository)
+const mapaRepositoryProvider = MapaRepositoryProvider._();
+
+final class MapaRepositoryProvider
+    extends $FunctionalProvider<MapaRepository, MapaRepository, MapaRepository>
+    with $Provider<MapaRepository> {
+  const MapaRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mapaRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mapaRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<MapaRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  MapaRepository create(Ref ref) {
+    return mapaRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MapaRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MapaRepository>(value),
+    );
+  }
+}
+
+String _$mapaRepositoryHash() => r'3abd72cff5e578410f19a0fd1bdadd5c23fcdbad';
+
+@ProviderFor(IsLoading)
+const isLoadingProvider = IsLoadingProvider._();
+
+final class IsLoadingProvider extends $NotifierProvider<IsLoading, bool> {
+  const IsLoadingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'isLoadingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$isLoadingHash();
+
+  @$internal
+  @override
+  IsLoading create() => IsLoading();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$isLoadingHash() => r'7ac3400b2b7645b8ecfda5ba1799b8a7e3123ffe';
+
+abstract class _$IsLoading extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}

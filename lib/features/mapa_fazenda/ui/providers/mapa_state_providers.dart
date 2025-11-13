@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
 
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/map_repository.dart';
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/drawing_adapter.dart';
+
 part 'mapa_state_providers.g.dart';
 
 enum IssueType { pest, disease }
@@ -49,17 +52,83 @@ class ScreenModeState extends _$ScreenModeState {
     state = state == ScreenMode.viewing ? ScreenMode.editing : ScreenMode.viewing;
   }
 }
+
 @riverpod
 class FarmDrawings extends _$FarmDrawings {
-  // O estado será um mapa complexo para armazenar todos os desenhos
   @override
   Map<String, Map<IssueType, List<List<Offset>>>> build() {
-    // No futuro, aqui você poderia carregar os dados de um banco de dados ou API
     return {};
   }
+  
+  // NOVO MÉTODO: Busca os desenhos para uma semana específica
+  Future<void> fetchDrawings(String week) async {
+    // Se já temos os dados para essa semana, não busca de novo.
+    if (state.containsKey(week)) return;
 
+    final repo = ref.read(mapaRepositoryProvider);
+    ref.read(isLoadingProvider.notifier).state = true;
+    
+    try {
+      final jsonString = await repo.getDraw(week);
+      final drawings = DrawingAdapter.fromJson(jsonString);
+      
+      // Atualiza o estado com os dados da semana buscada
+      state = { ...state, week: drawings };
 
-  // Inicia um novo traço
+    } catch (e) {
+      // Aqui você poderia lidar com o erro, por exemplo, mostrando uma SnackBar
+      print("Erro ao buscar desenhos: $e");
+    } finally {
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
+  }
+
+  // NOVO MÉTODO: Salva os desenhos da semana atual na API
+  Future<void> saveDrawings() async {
+    print("Entrou no provider");
+    final repo = ref.read(mapaRepositoryProvider);
+    final week = getWeekApiFormat(ref.read(currentDateProvider));
+    final drawingsForWeek = state[week] ?? {};
+
+    ref.read(isLoadingProvider.notifier).state = true;
+    try {
+      final jsonString = DrawingAdapter.toJson(drawingsForWeek);
+      await repo.saveDraw(week, jsonString);
+      // Opcional: mostrar um feedback de sucesso (SnackBar)
+    } catch (e) {
+      print("Erro ao salvar desenhos: $e");
+    } finally {
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
+  }
+
+  // MÉTODO MODIFICADO: Limpa o desenho local E o remoto
+  Future<void> clear() async {
+    final repo = ref.read(mapaRepositoryProvider);
+    final week = getWeekApiFormat(ref.read(currentDateProvider));
+    final issue = ref.read(selectedIssueProvider);
+    if (issue == null) return;
+
+    ref.read(isLoadingProvider.notifier).state = true;
+    try {
+      // Atualiza o estado local
+      final weekData = state[week] ?? {};
+      weekData[issue] = [];
+      state = { ...state, week: weekData };
+
+      // Salva o estado atualizado (com o item limpo) na API
+      await saveDrawings();
+      // Nota: Uma abordagem alternativa seria chamar repo.deleteDraw(week), 
+      // mas isso apagaria pragas E doenças. Salvar o estado atualizado é mais seguro.
+
+    } catch (e) {
+      print("Erro ao limpar desenho: $e");
+    } finally {
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
+  }
+  
+  // Os métodos startStroke e addPoint continuam os mesmos
   void startStroke(Offset point) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
     final issue = ref.read(selectedIssueProvider);
@@ -68,7 +137,6 @@ class FarmDrawings extends _$FarmDrawings {
     final currentDrawing = state[week]?[issue] ?? [];
     final newDrawing = [...currentDrawing, [point]];
     
-    // Atualiza o estado de forma imutável
     state = {
       ...state,
       week: {
@@ -78,7 +146,6 @@ class FarmDrawings extends _$FarmDrawings {
     };
   }
 
-  // Adiciona um ponto ao traço atual
   void addPoint(Offset point) {
      final week = getWeekApiFormat(ref.read(currentDateProvider));
      final issue = ref.read(selectedIssueProvider);
@@ -93,21 +160,6 @@ class FarmDrawings extends _$FarmDrawings {
       week: {
         ...(state[week] ?? {}),
         issue: [...allButLast, lastStroke],
-      }
-    };
-  }
-
-  // Limpa o desenho da semana/problema ATUAL
-  void clear() {
-    final week = getWeekApiFormat(ref.read(currentDateProvider));
-    final issue = ref.read(selectedIssueProvider);
-    if (issue == null) return;
-
-    state = {
-      ...state,
-      week: {
-        ...(state[week] ?? {}),
-        issue: [], // Define como uma lista vazia
       }
     };
   }
@@ -128,4 +180,17 @@ List<List<Offset>> currentDrawing(Ref ref) {
 
   // 3. Retorna a lista de desenhos específica ou uma lista vazia se não houver nada
   return allDrawings[week]?[issue] ?? [];
+}
+
+@riverpod
+MapaRepository mapaRepository(Ref ref) {
+  return MapaRepository();
+}
+
+@riverpod
+class IsLoading extends _$IsLoading {
+  @override
+  bool build() => false;
+
+  void setLoading(bool value) => state = value;
 }
