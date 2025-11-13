@@ -168,28 +168,112 @@ abstract class _$ScreenModeState extends $Notifier<ScreenMode> {
   }
 }
 
-@ProviderFor(DrawingPoints)
-const drawingPointsProvider = DrawingPointsProvider._();
+@ProviderFor(FarmDrawings)
+const farmDrawingsProvider = FarmDrawingsProvider._();
 
-final class DrawingPointsProvider
-    extends $NotifierProvider<DrawingPoints, List<List<Offset>>> {
-  const DrawingPointsProvider._()
+final class FarmDrawingsProvider
+    extends
+        $NotifierProvider<
+          FarmDrawings,
+          Map<String, Map<IssueType, List<List<Offset>>>>
+        > {
+  const FarmDrawingsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'drawingPointsProvider',
+        name: r'farmDrawingsProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$drawingPointsHash();
+  String debugGetCreateSourceHash() => _$farmDrawingsHash();
 
   @$internal
   @override
-  DrawingPoints create() => DrawingPoints();
+  FarmDrawings create() => FarmDrawings();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(
+    Map<String, Map<IssueType, List<List<Offset>>>> value,
+  ) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride:
+          $SyncValueProvider<Map<String, Map<IssueType, List<List<Offset>>>>>(
+            value,
+          ),
+    );
+  }
+}
+
+String _$farmDrawingsHash() => r'9e2810a01192fd6c6dde7da803bb0d0dcd829d7f';
+
+abstract class _$FarmDrawings
+    extends $Notifier<Map<String, Map<IssueType, List<List<Offset>>>>> {
+  Map<String, Map<IssueType, List<List<Offset>>>> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref =
+        this.ref
+            as $Ref<
+              Map<String, Map<IssueType, List<List<Offset>>>>,
+              Map<String, Map<IssueType, List<List<Offset>>>>
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                Map<String, Map<IssueType, List<List<Offset>>>>,
+                Map<String, Map<IssueType, List<List<Offset>>>>
+              >,
+              Map<String, Map<IssueType, List<List<Offset>>>>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+@ProviderFor(currentDrawing)
+const currentDrawingProvider = CurrentDrawingProvider._();
+
+final class CurrentDrawingProvider
+    extends
+        $FunctionalProvider<
+          List<List<Offset>>,
+          List<List<Offset>>,
+          List<List<Offset>>
+        >
+    with $Provider<List<List<Offset>>> {
+  const CurrentDrawingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentDrawingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentDrawingHash();
+
+  @$internal
+  @override
+  $ProviderElement<List<List<Offset>>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  List<List<Offset>> create(Ref ref) {
+    return currentDrawing(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(List<List<Offset>> value) {
@@ -200,23 +284,4 @@ final class DrawingPointsProvider
   }
 }
 
-String _$drawingPointsHash() => r'8b7651de51d0c43e9f7e1fce27b2ec40741d2a38';
-
-abstract class _$DrawingPoints extends $Notifier<List<List<Offset>>> {
-  List<List<Offset>> build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<List<List<Offset>>, List<List<Offset>>>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<List<List<Offset>>, List<List<Offset>>>,
-              List<List<Offset>>,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
-  }
-}
+String _$currentDrawingHash() => r'a86ed5ba42c0ef638ea366d7726a2fe628a5f07d';

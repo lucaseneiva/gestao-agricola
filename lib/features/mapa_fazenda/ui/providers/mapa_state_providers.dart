@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-part 'mapa_state_providers.g.dart';
+import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
 
+part 'mapa_state_providers.g.dart';
 
 enum IssueType { pest, disease }
 enum ScreenMode { viewing, editing }
@@ -48,34 +49,83 @@ class ScreenModeState extends _$ScreenModeState {
     state = state == ScreenMode.viewing ? ScreenMode.editing : ScreenMode.viewing;
   }
 }
-
-
-// NOVO PROVIDER PARA O DESENHO
 @riverpod
-class DrawingPoints extends _$DrawingPoints {
-  // O estado será uma lista de "traços". Cada traço é uma lista de pontos.
+class FarmDrawings extends _$FarmDrawings {
+  // O estado será um mapa complexo para armazenar todos os desenhos
   @override
-  List<List<Offset>> build() {
-    return [];
+  Map<String, Map<IssueType, List<List<Offset>>>> build() {
+    // No futuro, aqui você poderia carregar os dados de um banco de dados ou API
+    return {};
   }
 
-  // Inicia um novo traço quando o usuário toca na tela
+
+  // Inicia um novo traço
   void startStroke(Offset point) {
-    state = [...state, [point]];
+    final week = getWeekApiFormat(ref.read(currentDateProvider));
+    final issue = ref.read(selectedIssueProvider);
+    if (issue == null) return;
+
+    final currentDrawing = state[week]?[issue] ?? [];
+    final newDrawing = [...currentDrawing, [point]];
+    
+    // Atualiza o estado de forma imutável
+    state = {
+      ...state,
+      week: {
+        ...(state[week] ?? {}),
+        issue: newDrawing,
+      }
+    };
   }
 
-  // Adiciona um ponto ao traço atual enquanto o usuário arrasta o dedo
+  // Adiciona um ponto ao traço atual
   void addPoint(Offset point) {
-    if (state.isEmpty) return;
-    // Pega a lista de traços, exceto o último
-    final strokes = state.sublist(0, state.length - 1);
-    // Pega o último traço, adiciona o novo ponto e o coloca de volta na lista
-    final currentStroke = [...state.last, point];
-    state = [...strokes, currentStroke];
+     final week = getWeekApiFormat(ref.read(currentDateProvider));
+     final issue = ref.read(selectedIssueProvider);
+     if (issue == null || state[week]?[issue] == null || state[week]![issue]!.isEmpty) return;
+    
+     final currentDrawing = state[week]?[issue] ?? [];
+     final lastStroke = [...currentDrawing.last, point];
+     final allButLast = currentDrawing.sublist(0, currentDrawing.length - 1);
+     
+     state = {
+      ...state,
+      week: {
+        ...(state[week] ?? {}),
+        issue: [...allButLast, lastStroke],
+      }
+    };
   }
 
-  // Limpa todos os desenhos da tela
+  // Limpa o desenho da semana/problema ATUAL
   void clear() {
-    state = [];
+    final week = getWeekApiFormat(ref.read(currentDateProvider));
+    final issue = ref.read(selectedIssueProvider);
+    if (issue == null) return;
+
+    state = {
+      ...state,
+      week: {
+        ...(state[week] ?? {}),
+        issue: [], // Define como uma lista vazia
+      }
+    };
   }
+}
+
+@riverpod
+List<List<Offset>> currentDrawing(Ref ref) {
+  // 1. Observa o provider principal que contém todos os desenhos
+  final allDrawings = ref.watch(farmDrawingsProvider);
+  
+  // 2. Observa a data e o tipo de problema para saber "qual" desenho pegar
+  final week = getWeekApiFormat(ref.watch(currentDateProvider));
+  final issue = ref.watch(selectedIssueProvider);
+
+  if (issue == null) {
+    return []; // Retorna uma lista vazia se nenhum problema estiver selecionado
+  }
+
+  // 3. Retorna a lista de desenhos específica ou uma lista vazia se não houver nada
+  return allDrawings[week]?[issue] ?? [];
 }

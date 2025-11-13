@@ -21,8 +21,8 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
   Widget build(BuildContext context) {
     final currentDate = ref.watch(currentDateProvider);
     final screenMode = ref.watch(screenModeStateProvider);
-    final drawingPoints = ref.watch(drawingPointsProvider);
-    final drawingNotifier = ref.read(drawingPointsProvider.notifier);
+    final drawingPoints = ref.watch(currentDrawingProvider);
+    final drawingNotifier = ref.read(farmDrawingsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -78,7 +78,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
   Widget _buildMapView(
     ScreenMode screenMode,
     List<List<Offset>> points,
-    DrawingPoints drawingNotifier,
+    FarmDrawings drawingNotifier,
   ) {
     return ClipRect(
       child: InteractiveViewer(
