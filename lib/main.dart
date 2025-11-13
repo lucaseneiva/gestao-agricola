@@ -1,7 +1,7 @@
 import 'package:desafio_tecnico_arauc/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/mapa_fazenda/ui/mapa_screen.dart';
+import 'features/mapa_fazenda/ui/map_screen.dart';
 
 void main() {
   runApp(
