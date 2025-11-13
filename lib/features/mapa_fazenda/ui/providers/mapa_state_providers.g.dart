@@ -292,52 +292,47 @@ abstract class _$FarmDrawings
   }
 }
 
-@ProviderFor(currentDrawing)
-const currentDrawingProvider = CurrentDrawingProvider._();
+@ProviderFor(displayDrawings)
+const displayDrawingsProvider = DisplayDrawingsProvider._();
 
-final class CurrentDrawingProvider
+final class DisplayDrawingsProvider
     extends
-        $FunctionalProvider<
-          List<List<Offset>>,
-          List<List<Offset>>,
-          List<List<Offset>>
-        >
-    with $Provider<List<List<Offset>>> {
-  const CurrentDrawingProvider._()
+        $FunctionalProvider<DisplayDrawings, DisplayDrawings, DisplayDrawings>
+    with $Provider<DisplayDrawings> {
+  const DisplayDrawingsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'currentDrawingProvider',
+        name: r'displayDrawingsProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$currentDrawingHash();
+  String debugGetCreateSourceHash() => _$displayDrawingsHash();
 
   @$internal
   @override
-  $ProviderElement<List<List<Offset>>> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  $ProviderElement<DisplayDrawings> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  List<List<Offset>> create(Ref ref) {
-    return currentDrawing(ref);
+  DisplayDrawings create(Ref ref) {
+    return displayDrawings(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<List<Offset>> value) {
+  Override overrideWithValue(DisplayDrawings value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<List<List<Offset>>>(value),
+      providerOverride: $SyncValueProvider<DisplayDrawings>(value),
     );
   }
 }
 
-String _$currentDrawingHash() => r'a86ed5ba42c0ef638ea366d7726a2fe628a5f07d';
+String _$displayDrawingsHash() => r'be62a58b91ce5a71bd618402d493cce1bdb048e9';
 
 @ProviderFor(mapaRepository)
 const mapaRepositoryProvider = MapaRepositoryProvider._();

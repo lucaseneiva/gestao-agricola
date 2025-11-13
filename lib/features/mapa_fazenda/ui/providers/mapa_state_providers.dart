@@ -13,6 +13,16 @@ enum ScreenMode { viewing, editing }
 
 enum DrawTool { pencil, eraser }
 
+class DisplayDrawings {
+  final List<List<Offset>> activeStrokes;
+  final List<List<Offset>> inactiveStrokes;
+
+  DisplayDrawings({
+    required this.activeStrokes,
+    required this.inactiveStrokes,
+  });
+}
+
 @riverpod
 class CurrentTool extends _$CurrentTool {
   @override
@@ -210,20 +220,36 @@ class FarmDrawings extends _$FarmDrawings {
 }
 
 @riverpod
-List<List<Offset>> currentDrawing(Ref ref) {
-  // 1. Observa o provider principal que contém todos os desenhos
+DisplayDrawings displayDrawings(Ref ref) {
+  // Observa o provider principal que contém TODOS os desenhos
   final allDrawings = ref.watch(farmDrawingsProvider);
-
-  // 2. Observa a data e o tipo de problema para saber "qual" desenho pegar
+  
+  // Observa a data e o tipo de problema selecionado
   final week = getWeekApiFormat(ref.watch(currentDateProvider));
-  final issue = ref.watch(selectedIssueProvider);
+  final selectedIssue = ref.watch(selectedIssueProvider);
 
-  if (issue == null) {
-    return []; // Retorna uma lista vazia se nenhum problema estiver selecionado
+  // Se nenhum problema estiver selecionado, não mostra nada.
+  if (selectedIssue == null) {
+    return DisplayDrawings(activeStrokes: [], inactiveStrokes: []);
   }
 
-  // 3. Retorna a lista de desenhos específica ou uma lista vazia se não houver nada
-  return allDrawings[week]?[issue] ?? [];
+  // Pega todos os desenhos da semana atual
+  final weekDrawings = allDrawings[week] ?? {};
+
+  // Define qual é o problema "inativo"
+  final inactiveIssue = selectedIssue == IssueType.pest 
+      ? IssueType.disease 
+      : IssueType.pest;
+
+  // Busca as listas de traços para cada um
+  final activeStrokes = weekDrawings[selectedIssue] ?? [];
+  final inactiveStrokes = weekDrawings[inactiveIssue] ?? [];
+
+  // Retorna o objeto completo
+  return DisplayDrawings(
+    activeStrokes: activeStrokes,
+    inactiveStrokes: inactiveStrokes,
+  );
 }
 
 @riverpod
