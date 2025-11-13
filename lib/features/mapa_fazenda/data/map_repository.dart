@@ -36,7 +36,7 @@ class MapaRepository {
       if (drawData == null || drawData is! Map) {
         return '';
       }
-
+  
       // 4. Se 'drawData' é um Mapa válido, nós o codificamos de volta para uma
       // string JSON. Isso é o que o DrawingAdapter.fromJson espera receber.
       return jsonEncode(drawData);

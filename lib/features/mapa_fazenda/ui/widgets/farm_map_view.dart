@@ -12,6 +12,7 @@ class FarmMapView extends ConsumerWidget {
     final screenMode = ref.watch(screenModeStateProvider);
     final drawingPoints = ref.watch(currentDrawingProvider);
     final drawingNotifier = ref.read(farmDrawingsProvider.notifier);
+    final currentTool = ref.watch(currentToolProvider);
 
     return ClipRect(
       child: InteractiveViewer(
@@ -43,7 +44,32 @@ class FarmMapView extends ConsumerWidget {
                       drawingNotifier.startStroke(details.localPosition);
                     },
                     onPanUpdate: (details) {
-                      drawingNotifier.addPoint(details.localPosition);
+                      if (currentTool == DrawTool.pencil) {
+                        drawingNotifier.addPoint(details.localPosition);
+                      } else {
+                        // LÓGICA DA BORRACHA
+                        final eraserPosition = details.localPosition;
+                        const eraserSize = 15.0; // Raio da borracha
+
+                        // Faz uma cópia da lista para evitar erros de modificação durante a iteração
+                        final strokesCopy = List<List<Offset>>.from(
+                          drawingPoints,
+                        );
+
+                        for (final stroke in strokesCopy) {
+                          // Verifica se algum ponto do traço está dentro do raio da borracha
+                          final isTouching = stroke.any(
+                            (point) =>
+                                (point - eraserPosition).distance < eraserSize,
+                          );
+
+                          if (isTouching) {
+                            drawingNotifier.removeStroke(stroke);
+                            // O break é opcional, mas melhora a performance ao apagar um traço por vez
+                            break;
+                          }
+                        }
+                      }
                     },
                     child: CustomPaint(
                       painter: DrawingPainter(strokes: drawingPoints),
@@ -59,11 +85,7 @@ class FarmMapView extends ConsumerWidget {
       ),
     );
   }
-
 }
-
-
-    
 
 class DrawingPainter extends CustomPainter {
   final List<List<Offset>> strokes;

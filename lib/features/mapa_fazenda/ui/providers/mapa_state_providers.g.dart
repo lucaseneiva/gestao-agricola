@@ -9,6 +9,59 @@ part of 'mapa_state_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(CurrentTool)
+const currentToolProvider = CurrentToolProvider._();
+
+final class CurrentToolProvider
+    extends $NotifierProvider<CurrentTool, DrawTool> {
+  const CurrentToolProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentToolProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentToolHash();
+
+  @$internal
+  @override
+  CurrentTool create() => CurrentTool();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DrawTool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DrawTool>(value),
+    );
+  }
+}
+
+String _$currentToolHash() => r'ddb6dec397753850961f06128364335d4ffeb84d';
+
+abstract class _$CurrentTool extends $Notifier<DrawTool> {
+  DrawTool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<DrawTool, DrawTool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<DrawTool, DrawTool>,
+              DrawTool,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
 @ProviderFor(CurrentDate)
 const currentDateProvider = CurrentDateProvider._();
 
@@ -209,7 +262,7 @@ final class FarmDrawingsProvider
   }
 }
 
-String _$farmDrawingsHash() => r'fd19a5a152f27630c20fc83bfb3cbc5b4cc88100';
+String _$farmDrawingsHash() => r'137beec13490a32da35c43e65b5695436657392a';
 
 abstract class _$FarmDrawings
     extends $Notifier<Map<String, Map<IssueType, List<List<Offset>>>>> {

@@ -12,7 +12,6 @@ class MapaScreen extends ConsumerStatefulWidget {
 }
 
 class _MapaScreenState extends ConsumerState<MapaScreen> {
-
   // 1. Busca os dados iniciais quando a tela é construída pela primeira vez.
   @override
   void initState() {
@@ -38,42 +37,81 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
     final screenMode = ref.watch(screenModeStateProvider);
     final drawingNotifier = ref.read(farmDrawingsProvider.notifier);
     final isLoading = ref.watch(isLoadingProvider);
+    final currentTool = ref.watch(currentToolProvider);
+    final toolNotifier = ref.read(currentToolProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fazenda do Murilo'),
         actions: [
-          if (screenMode == ScreenMode.editing)
+          if (screenMode == ScreenMode.editing) ...[
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.white),
-              tooltip: 'Limpar desenho',
-              // 3. Modifica o onPressed para chamar o novo método assíncrono.
-              onPressed: () async {
-                // Adiciona uma confirmação para o usuário
-                final confirm = await showDialog<bool>(
+              icon: const Icon(Icons.brush), // Ícone de pincel/lápis
+              tooltip: 'Lápis',
+              // Se selecionado, Branco. Se não, Branco meio transparente.
+              color: currentTool == DrawTool.pencil
+                  ? Colors.white
+                  : Colors.white38,
+              onPressed: () => toolNotifier.setTool(DrawTool.pencil),
+            ),
+
+            IconButton(
+              // cleaning_services parece um apagador de quadro branco
+              icon: const Icon(Icons.cleaning_services),
+              tooltip: 'Borracha',
+              color: currentTool == DrawTool.eraser
+                  ? Colors.white
+                  : Colors.white38,
+              onPressed: () => toolNotifier.setTool(DrawTool.eraser),
+            ),
+            const SizedBox(width: 8),
+
+            IconButton(
+              icon: const Icon(Icons.delete_forever, color: Colors.white),
+              tooltip: 'Limpar tudo na semana',
+              // onPressed agora é síncrono
+              onPressed: () {
+                // O diálogo de confirmação continua sendo uma boa prática
+                showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Confirmar'),
-                    content: const Text('Deseja limpar o desenho para este problema nesta semana?'),
+                    title: const Text('Limpar Desenhos'),
+                    content: const Text(
+                      'Isso removerá todos os desenhos de pragas e doenças da tela. As alterações só serão salvas quando você clicar no ícone de salvar.',
+                    ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
-                      TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Limpar')),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancelar'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text(
+                          'Limpar',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
                     ],
                   ),
-                );
-                if (confirm == true) {
-                  await drawingNotifier.clear();
-                }
+                ).then((confirmed) {
+                  // Usamos .then() pois showDialog é um Future
+                  if (confirmed == true) {
+                    // CHAMA O NOVO MÉTODO LOCAL
+                    drawingNotifier.clearAllForCurrentWeekLocally();
+                  }
+                });
               },
             ),
+
+            const SizedBox(width: 8),
+          ],
+
           IconButton(
             icon: Icon(
               screenMode == ScreenMode.viewing
-                  ? Icons.edit_outlined
-                  : Icons.check,
-              color: screenMode == ScreenMode.viewing
-                  ? Colors.white
-                  : Colors.lightGreenAccent,
+                  ? Icons.drive_file_rename_outline
+                  : Icons.save,
+              color: Colors.white,
             ),
             tooltip: screenMode == ScreenMode.viewing ? 'Editar' : 'Salvar',
             // 4. Modifica o onPressed para salvar antes de mudar de modo.
@@ -82,7 +120,10 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
               if (screenMode == ScreenMode.editing) {
                 await drawingNotifier.saveDrawings();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Desenho salvo com sucesso!'), backgroundColor: Colors.green),
+                  const SnackBar(
+                    content: Text('Desenho salvo com sucesso!'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               }
               // Só então troca o modo
@@ -103,15 +144,11 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
               // 5. Usa um Stack para mostrar o indicador de carregamento sobre o mapa.
               child: Stack(
                 children: [
-                  Center(
-                    child: FarmMapView(),
-                  ),
+                  Center(child: FarmMapView()),
                   if (isLoading)
                     Container(
                       color: Colors.black.withOpacity(0.3),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: const Center(child: CircularProgressIndicator()),
                     ),
                 ],
               ),
