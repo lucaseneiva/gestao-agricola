@@ -1,3 +1,4 @@
+import 'package:desafio_tecnico_arauc/core/theme/app_theme.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
 import 'package:flutter/material.dart';
@@ -147,7 +148,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
                   Center(child: FarmMapView()),
                   if (isLoading)
                     Container(
-                      color: Colors.black.withOpacity(0.3),
+                      color: softWhite,
                       child: const Center(child: CircularProgressIndicator()),
                     ),
                 ],
