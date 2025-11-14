@@ -85,3 +85,58 @@ O app tá rodando lisinho, organizado e pronto pra evoluir. Ficou uma ferramenta
 ## Reflexão Final
 
 Cara, esse desafio foi definitivamente um... desafio... mas foi legal demais também de resolver. Explorei áreas novas do Flutter, tive que tomar umas decisões arquiteturais difíceis e, no fim, consegui resolver um problema real de um jeito que eu achei bem pragmático. É isso aí! Menos é mais, desde que seja o "menos" certo!!!
+
+---
+
+## Adendos Técnicos e Guia de Execução
+
+Esta seção contém informações práticas para configurar e rodar o projeto, além de algumas observações importantes sobre o ambiente de desenvolvimento e limitações conhecidas.
+
+### Como Rodar o Projeto
+
+Para executar a aplicação em sua máquina local, siga os passos abaixo:
+
+1.  **Clone o Repositório:**
+    ```bash
+    git clone <URL_DO_SEU_REPOSITORIO>
+    cd lucaseneiva-desafio-tecnico-arauc
+    ```
+
+2.  **Crie o Arquivo de Credenciais (`.env`):**
+    A aplicação precisa de credenciais para se comunicar com a API. Crie um arquivo chamado `.env` na raiz do projeto. Dentro dele, adicione as seguintes linhas, substituindo pelos dados que foram fornecidos a você no desafio:
+    ```
+    API_USERNAME=<seu_usuario_aqui>
+    API_PASSWORD=<sua_senha_aqui>
+    ```
+    *Este passo é fundamental, pois sem ele a aplicação não conseguirá autenticar nas chamadas de rede.*
+
+3.  **Instale as Dependências:**
+    ```bash
+    flutter pub get
+    ```
+
+4.  **Execute a Aplicação:**
+    ```bash
+    flutter run
+    ```
+
+### Geração de Código (Riverpod & BuildRunner)
+
+O projeto utiliza o `riverpod_generator` para automatizar a criação dos *providers* de estado, o que torna o código mais limpo e seguro. Isso significa que existem arquivos gerados (com a extensão `.g.dart`).
+
+**Importante:** Se você modificar qualquer um dos providers no arquivo `lib/features/mapa_fazenda/ui/providers/mapa_state_providers.dart`, será necessário regenerar o código correspondente. Para isso, execute o seguinte comando no terminal:
+
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### Observação Crucial sobre a Versão Web (CORS)
+
+Durante o desenvolvimento, foi identificado que a aplicação **não funciona na plataforma web**.
+
+*   **Motivo:** Isso ocorre devido a restrições de **CORS (Cross-Origin Resource Sharing)** impostas pela API fornecida para o desafio. A política de CORS é um mecanismo de segurança do navegador que impede que um cliente web faça requisições para um domínio diferente do seu próprio, a menos que o servidor autorize explicitamente.
+*   **Análise e Decisão:** A solução para este problema reside no **backend**, que precisaria ser configurado para permitir requisições a partir do domínio da aplicação web. Dado que o foco do desafio era criar uma solução primordialmente **mobile** para o Murilo, e entendendo que a configuração de CORS é uma responsabilidade do servidor, optei por concentrar os esforços na funcionalidade principal para Android/iOS, que era o requisito central do projeto.
+
+### Ambiente de Testes
+
+O desenvolvimento e os testes da aplicação foram realizados primordialmente em um **Android Virtual Device (AVD)**. O GIF de demonstração e as imagens apresentadas neste README foram capturados a partir da versão rodando neste ambiente, garantindo a funcionalidade e a experiência esperada na plataforma mobile.
