@@ -2,37 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/domain/entities/stroke.dart';
 
-//==============================================================================
-// WIDGET PRINCIPAL DA VISUALIZAÇÃO DO MAPA
-//==============================================================================
 class FarmMapView extends ConsumerWidget {
   const FarmMapView({super.key});
 
-  /// Função auxiliar para a lógica da borracha.
-  /// Encontra e remove o traço que está sob a [position] do dedo.
   void _eraseAt(
     Offset position,
-    List<List<Offset>> activeStrokes, // A borracha só afeta os traços ativos
+    List<Stroke> activeStrokes,
     FarmDrawings notifier,
   ) {
-    // Define o raio de alcance da borracha
     const eraserRadius = 20.0;
-
-    // Cria uma cópia da lista de traços para iterar com segurança,
-    // evitando erros de modificação concorrente.
-    final strokesCopy = List<List<Offset>>.from(activeStrokes);
+    final strokesCopy = List<Stroke>.from(activeStrokes);
 
     for (final stroke in strokesCopy) {
-      // Verifica se algum ponto ('point') dentro do traço ('stroke')
-      // está dentro do raio da borracha.
       final isHit =
-          stroke.any((point) => (point - position).distance < eraserRadius);
+          stroke.points.any((point) => (point - position).distance < eraserRadius);
 
       if (isHit) {
-        // Se encontrou um traço, chama o método para removê-lo do estado.
         notifier.removeStroke(stroke);
-        // Interrompe o loop para apagar apenas um traço por vez, melhorando a performance.
         break;
       }
     }
@@ -40,10 +28,8 @@ class FarmMapView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Tamanho fixo da "prancheta" onde o SVG e os desenhos vivem.
     const Size artboardSize = Size(640, 1024);
 
-    // Observa os providers necessários para o funcionamento da UI.
     final screenMode = ref.watch(screenModeStateProvider);
     final currentTool = ref.watch(currentToolProvider);
     final displayDrawings = ref.watch(displayDrawingsProvider);
@@ -113,24 +99,19 @@ class FarmMapView extends ConsumerWidget {
   }
 }
 
-//==============================================================================
-// PAINTER CUSTOMIZADO RESPONSÁVEL POR DESENHAR NA TELA
-//==============================================================================
 class DrawingPainter extends CustomPainter {
-  final List<List<Offset>> activeStrokes;
-  final List<List<Offset>> inactiveStrokes;
+  final List<Stroke> activeStrokes;
+  final List<Stroke> inactiveStrokes;
 
   DrawingPainter({required this.activeStrokes, required this.inactiveStrokes});
 
-  /// Desenha um conjunto de traços [strokes] no [canvas] com um [paint] específico.
-  void _paintStrokes(Canvas canvas, List<List<Offset>> strokes, Paint paint) {
+  void _paintStrokes(Canvas canvas, List<Stroke> strokes, Paint paint) {
     for (final stroke in strokes) {
-      // Um traço precisa de pelo menos 2 pontos para formar uma linha.
-      if (stroke.length > 1) {
+      if (stroke.points.length > 1) {
         final path = Path();
-        path.moveTo(stroke.first.dx, stroke.first.dy);
-        for (var i = 1; i < stroke.length; i++) {
-          path.lineTo(stroke[i].dx, stroke[i].dy);
+        path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
+        for (var i = 1; i < stroke.points.length; i++) {
+          path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
         }
         canvas.drawPath(path, paint);
       }
@@ -139,24 +120,20 @@ class DrawingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Define o estilo do pincel para os desenhos ATIVOS (vermelho).
     final activePaint = Paint()
-      ..color = const Color(0xFFD32F2F).withOpacity(0.7)
+      ..color = const Color(0xFFD32F2F).withAlpha(178)
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 12.0
       ..style = PaintingStyle.stroke;
 
-    // Define o estilo do pincel para os desenhos INATIVOS (cinza).
     final inactivePaint = Paint()
-      ..color = Colors.grey.withOpacity(0.5)
+      ..color = Colors.grey.withAlpha(127)
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 10.0 // Um pouco mais fino para dar menos destaque.
+      ..strokeWidth = 10.0
       ..style = PaintingStyle.stroke;
 
-    // 1. Pinta os traços inativos primeiro para que fiquem no fundo.
-    _paintStrokes(canvas, inactiveStrokes, inactivePaint);
 
-    // 2. Pinta os traços ativos por cima.
+    _paintStrokes(canvas, inactiveStrokes, inactivePaint);
     _paintStrokes(canvas, activeStrokes, activePaint);
   }
 

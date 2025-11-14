@@ -225,11 +225,7 @@ abstract class _$ScreenModeState extends $Notifier<ScreenMode> {
 const farmDrawingsProvider = FarmDrawingsProvider._();
 
 final class FarmDrawingsProvider
-    extends
-        $NotifierProvider<
-          FarmDrawings,
-          Map<String, Map<IssueType, List<List<Offset>>>>
-        > {
+    extends $NotifierProvider<FarmDrawings, Map<String, Drawing>> {
   const FarmDrawingsProvider._()
     : super(
         from: null,
@@ -249,42 +245,28 @@ final class FarmDrawingsProvider
   FarmDrawings create() => FarmDrawings();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(
-    Map<String, Map<IssueType, List<List<Offset>>>> value,
-  ) {
+  Override overrideWithValue(Map<String, Drawing> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride:
-          $SyncValueProvider<Map<String, Map<IssueType, List<List<Offset>>>>>(
-            value,
-          ),
+      providerOverride: $SyncValueProvider<Map<String, Drawing>>(value),
     );
   }
 }
 
-String _$farmDrawingsHash() => r'137beec13490a32da35c43e65b5695436657392a';
+String _$farmDrawingsHash() => r'dfbdcd53c8d343b77c3a0156acfea9fe5a1a03cb';
 
-abstract class _$FarmDrawings
-    extends $Notifier<Map<String, Map<IssueType, List<List<Offset>>>>> {
-  Map<String, Map<IssueType, List<List<Offset>>>> build();
+abstract class _$FarmDrawings extends $Notifier<Map<String, Drawing>> {
+  Map<String, Drawing> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref =
-        this.ref
-            as $Ref<
-              Map<String, Map<IssueType, List<List<Offset>>>>,
-              Map<String, Map<IssueType, List<List<Offset>>>>
-            >;
+    final ref = this.ref as $Ref<Map<String, Drawing>, Map<String, Drawing>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<
-                Map<String, Map<IssueType, List<List<Offset>>>>,
-                Map<String, Map<IssueType, List<List<Offset>>>>
-              >,
-              Map<String, Map<IssueType, List<List<Offset>>>>,
+              AnyNotifier<Map<String, Drawing>, Map<String, Drawing>>,
+              Map<String, Drawing>,
               Object?,
               Object?
             >;
@@ -332,14 +314,14 @@ final class DisplayDrawingsProvider
   }
 }
 
-String _$displayDrawingsHash() => r'be62a58b91ce5a71bd618402d493cce1bdb048e9';
+String _$displayDrawingsHash() => r'e90003b6e75ec3b211f702843c0a6333992bd8a4';
 
 @ProviderFor(mapaRepository)
 const mapaRepositoryProvider = MapaRepositoryProvider._();
 
 final class MapaRepositoryProvider
-    extends $FunctionalProvider<MapaRepository, MapaRepository, MapaRepository>
-    with $Provider<MapaRepository> {
+    extends $FunctionalProvider<IMapRepository, IMapRepository, IMapRepository>
+    with $Provider<IMapRepository> {
   const MapaRepositoryProvider._()
     : super(
         from: null,
@@ -356,24 +338,24 @@ final class MapaRepositoryProvider
 
   @$internal
   @override
-  $ProviderElement<MapaRepository> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<IMapRepository> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  MapaRepository create(Ref ref) {
+  IMapRepository create(Ref ref) {
     return mapaRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(MapaRepository value) {
+  Override overrideWithValue(IMapRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<MapaRepository>(value),
+      providerOverride: $SyncValueProvider<IMapRepository>(value),
     );
   }
 }
 
-String _$mapaRepositoryHash() => r'3abd72cff5e578410f19a0fd1bdadd5c23fcdbad';
+String _$mapaRepositoryHash() => r'd8556cb2eda5ffd8e7def46c1767e73c419345e7';
 
 @ProviderFor(IsLoading)
 const isLoadingProvider = IsLoadingProvider._();

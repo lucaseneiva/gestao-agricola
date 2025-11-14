@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/map_repository.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/drawing_adapter.dart';
+import '../../domain/entities/drawing.dart';
+import '../../domain/entities/stroke.dart';
+import '../../domain/repositories/map_repository_interface.dart';
 
 part 'mapa_state_providers.g.dart';
 
@@ -14,8 +16,8 @@ enum ScreenMode { viewing, editing }
 enum DrawTool { pencil, eraser }
 
 class DisplayDrawings {
-  final List<List<Offset>> activeStrokes;
-  final List<List<Offset>> inactiveStrokes;
+  final List<Stroke> activeStrokes;
+  final List<Stroke> inactiveStrokes;
 
   DisplayDrawings({required this.activeStrokes, required this.inactiveStrokes});
 }
@@ -73,32 +75,27 @@ class ScreenModeState extends _$ScreenModeState {
 @riverpod
 class FarmDrawings extends _$FarmDrawings {
   @override
-  Map<String, Map<IssueType, List<List<Offset>>>> build() {
+  Map<String, Drawing> build() {
     return {};
   }
 
   // Limpa locamente os desenhos para a semana atual
   void clearAllForCurrentWeekLocally() {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
+    if (!state.containsKey(week)) return;
 
-    if (!state.containsKey(week) || state[week]!.isEmpty) return;
-
-    state = {...state, week: {}};
+    state = {...state, week: state[week]!.copyWith(strokes: [])};
   }
 
   // Remove uma stroke específica localmente
-  void removeStroke(List<Offset> strokeToRemove) {
+  void removeStroke(Stroke strokeToRemove) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
-    final issue = ref.read(selectedIssueProvider);
-    if (issue == null) return;
+    if (!state.containsKey(week)) return;
 
-    final currentStrokes = List<List<Offset>>.from(state[week]?[issue] ?? []);
-    currentStrokes.remove(strokeToRemove);
+    final currentDrawing = state[week]!;
+    final newStrokes = List<Stroke>.from(currentDrawing.strokes)..remove(strokeToRemove);
 
-    state = {
-      ...state,
-      week: {...(state[week] ?? {}), issue: currentStrokes},
-    };
+    state = {...state, week: currentDrawing.copyWith(strokes: newStrokes)};
   }
 
   // Busca os desenhos para uma semana específica
@@ -109,12 +106,11 @@ class FarmDrawings extends _$FarmDrawings {
     ref.read(isLoadingProvider.notifier).state = true;
 
     try {
-      final drawingsMap = await repo.getDraw(week);
-      final drawings = DrawingAdapter.fromMap(drawingsMap ?? {});
-
-      state = {...state, week: drawings};
+      final drawing = await repo.getDraw(week);
+      state = {...state, week: drawing ?? Drawing(week: week)};
     } catch (e) {
       if (kDebugMode) print("Erro ao buscar desenhos: $e");
+      state = {...state, week: Drawing(week: week)}; // Garante que não ficará nulo
     } finally {
       ref.read(isLoadingProvider.notifier).state = false;
     }
@@ -124,12 +120,13 @@ class FarmDrawings extends _$FarmDrawings {
   Future<void> saveDrawings() async {
     final repo = ref.read(mapaRepositoryProvider);
     final week = getWeekApiFormat(ref.read(currentDateProvider));
-    final drawingsForWeek = state[week] ?? {};
+    final drawingToSave = state[week];
+
+    if (drawingToSave == null) return;
 
     ref.read(isLoadingProvider.notifier).state = true;
     try {
-      final jsonString = DrawingAdapter.toJson(drawingsForWeek);
-      await repo.saveDraw(week, jsonString);
+      await repo.saveDraw(drawingToSave);
     } catch (e) {
       if (kDebugMode) print("Erro ao salvar desenhos: $e");
     } finally {
@@ -143,65 +140,55 @@ class FarmDrawings extends _$FarmDrawings {
     final issue = ref.read(selectedIssueProvider);
     if (issue == null) return;
 
-    final currentDrawing = state[week]?[issue] ?? [];
-    final newDrawing = [
-      ...currentDrawing,
-      [point],
-    ];
-
+    final currentDrawing = state[week] ?? Drawing(week: week);
+    final newStroke = Stroke(issueType: issue, points: [point]);
+    
     state = {
       ...state,
-      week: {...(state[week] ?? {}), issue: newDrawing},
+      week: currentDrawing.copyWith(
+        strokes: [...currentDrawing.strokes, newStroke],
+      ),
     };
   }
 
   void addPoint(Offset point) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
-    final issue = ref.read(selectedIssueProvider);
+    final currentDrawing = state[week];
+    if (currentDrawing == null || currentDrawing.strokes.isEmpty) return;
 
-    if (issue == null || state[week]?[issue] == null || state[week]![issue]!.isEmpty) return;
+    final lastStroke = currentDrawing.strokes.last;
+    final newPoints = [...lastStroke.points, point];
+    final updatedStroke = Stroke(issueType: lastStroke.issueType, points: newPoints);
 
-    final currentDrawing = state[week]?[issue] ?? [];
-    final lastStroke = [...currentDrawing.last, point];
-    final allButLast = currentDrawing.sublist(0, currentDrawing.length - 1);
+    final allButLast = currentDrawing.strokes.sublist(0, currentDrawing.strokes.length - 1);
 
     state = {
       ...state,
-      week: {
-        ...(state[week] ?? {}),
-        issue: [...allButLast, lastStroke],
-      },
+      week: currentDrawing.copyWith(
+        strokes: [...allButLast, updatedStroke],
+      ),
     };
   }
 }
 
 @riverpod
 DisplayDrawings displayDrawings(Ref ref) {
-  // Observa o provider principal que contém TODOS os desenhos
   final allDrawings = ref.watch(farmDrawingsProvider);
-
-  // Observa a data e o tipo de problema selecionado
   final week = getWeekApiFormat(ref.watch(currentDateProvider));
   final selectedIssue = ref.watch(selectedIssueProvider);
 
-  // Se nenhum problema estiver selecionado, não mostra nada.
   if (selectedIssue == null) {
     return DisplayDrawings(activeStrokes: [], inactiveStrokes: []);
   }
 
-  // Pega todos os desenhos da semana atual
-  final weekDrawings = allDrawings[week] ?? {};
+  final weekDrawing = allDrawings[week];
+  if (weekDrawing == null) {
+    return DisplayDrawings(activeStrokes: [], inactiveStrokes: []);
+  }
 
-  // Define qual é o problema "inativo"
-  final inactiveIssue = selectedIssue == IssueType.pest
-      ? IssueType.disease
-      : IssueType.pest;
+  final activeStrokes = weekDrawing.strokes.where((s) => s.issueType == selectedIssue).toList();
+  final inactiveStrokes = weekDrawing.strokes.where((s) => s.issueType != selectedIssue).toList();
 
-  // Busca as listas de traços para cada um
-  final activeStrokes = weekDrawings[selectedIssue] ?? [];
-  final inactiveStrokes = weekDrawings[inactiveIssue] ?? [];
-
-  // Retorna o objeto completo
   return DisplayDrawings(
     activeStrokes: activeStrokes,
     inactiveStrokes: inactiveStrokes,
@@ -209,7 +196,7 @@ DisplayDrawings displayDrawings(Ref ref) {
 }
 
 @riverpod
-MapaRepository mapaRepository(Ref ref) {
+IMapRepository mapaRepository(Ref ref) {
   return MapaRepository();
 }
 
