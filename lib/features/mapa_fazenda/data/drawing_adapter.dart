@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../ui/providers/mapa_state_providers.dart'; // Importar o enum
+import '../ui/providers/mapa_state_providers.dart';
 
 // Adapta (converte) os dados do desenho para um formato que pode ser salvo na API
 class DrawingAdapter {
-  /// Converte um mapa de desenhos (Praga/Doença) para uma string JSON.
   static String toJson(Map<IssueType, List<List<Offset>>> issueDrawings) {
-    // Primeiro, converte os Offsets para um formato serializável (Map<String, double>)
     final serializableMap = issueDrawings.map((key, strokes) {
       final serializableStrokes = strokes
           .map((stroke) =>
@@ -18,15 +17,14 @@ class DrawingAdapter {
     return jsonEncode(serializableMap);
   }
 
-  /// Converte uma string JSON de volta para um mapa de desenhos (Praga/Doença).
-  static Map<IssueType, List<List<Offset>>> fromJson(String jsonString) {
-    if (jsonString.isEmpty) {
+  /// Converte um JSON de volta para um mapa de desenhos (Praga/Doença).
+  static Map<IssueType, List<List<Offset>>> fromMap(Map<String, dynamic> mapData) {
+    if (mapData.isEmpty) {
       return {};
     }
     try {
-      final Map<String, dynamic> decoded = jsonDecode(jsonString);
       
-      return decoded.map((key, value) {
+      return mapData.map((key, value) {
         // Converte a string da chave de volta para o enum IssueType
         final issueType = IssueType.values.firstWhere((e) => e.toString() == key);
         
@@ -41,7 +39,7 @@ class DrawingAdapter {
         return MapEntry(issueType, strokes);
       });
     } catch (e) {
-      print('Erro ao decodificar os dados do desenho: $e');
+      if (kDebugMode) print('Erro ao decodificar os dados do desenho: $e');
       return {};
     }
   }

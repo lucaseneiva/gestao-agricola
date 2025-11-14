@@ -122,9 +122,9 @@ class FarmDrawings extends _$FarmDrawings {
     ref.read(isLoadingProvider.notifier).state = true;
 
     try {
-      final jsonString = await repo.getDraw(week);
-      final drawings = DrawingAdapter.fromJson(jsonString);
-
+      final drawingsMap = await repo.getDraw(week);
+      final drawings = DrawingAdapter.fromMap(drawingsMap ?? {});
+      
       // Atualiza o estado com os dados da semana buscada
       state = {...state, week: drawings};
     } catch (e) {
