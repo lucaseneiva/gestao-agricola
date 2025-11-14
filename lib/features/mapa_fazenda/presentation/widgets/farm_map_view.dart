@@ -1,40 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
+import '../controllers/drawing_controller.dart';
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/domain/entities/stroke.dart';
+import '../controllers/map_ui_controller.dart';
+import '../providers/map_selectors.dart';
+import '../../domain/types.dart';
 
 class FarmMapView extends ConsumerWidget {
   const FarmMapView({super.key});
-
-  void _eraseAt(
-    Offset position,
-    List<Stroke> activeStrokes,
-    FarmDrawings notifier,
-  ) {
-    const eraserRadius = 20.0;
-    final strokesCopy = List<Stroke>.from(activeStrokes);
-
-    for (final stroke in strokesCopy) {
-      final isHit =
-          stroke.points.any((point) => (point - position).distance < eraserRadius);
-
-      if (isHit) {
-        notifier.removeStroke(stroke);
-        break;
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const Size artboardSize = Size(640, 1024);
 
     final screenMode = ref.watch(screenModeStateProvider);
-    final currentTool = ref.watch(currentToolProvider);
     final displayDrawings = ref.watch(displayDrawingsProvider);
-    final drawingNotifier = ref.read(farmDrawingsProvider.notifier);
-
+    
+    final controller = ref.read(farmDrawingsProvider.notifier);
     return ClipRect(
       child: InteractiveViewer(
         minScale: 1.0,
@@ -55,33 +38,13 @@ class FarmMapView extends ConsumerWidget {
 
                 // Camada 2: A área de desenho interativa.
                 IgnorePointer(
-                  // Desabilita a interação se não estiver no modo de edição.
                   ignoring: screenMode == ScreenMode.viewing,
                   child: GestureDetector(
-                    onPanStart: (details) {
-                      if (currentTool == DrawTool.pencil) {
-                        drawingNotifier.startStroke(details.localPosition);
-                      } else if (currentTool == DrawTool.eraser) {
-                        _eraseAt(
-                          details.localPosition,
-                          displayDrawings.activeStrokes,
-                          drawingNotifier,
-                        );
-                      }
-                    },
-                    onPanUpdate: (details) {
-                      if (currentTool == DrawTool.pencil) {
-                        drawingNotifier.addPoint(details.localPosition);
-                      } else if (currentTool == DrawTool.eraser) {
-                        _eraseAt(
-                          details.localPosition,
-                          displayDrawings.activeStrokes,
-                          drawingNotifier,
-                        );
-                      }
-                    },
+                    onPanStart: (d) =>
+                        controller.handlePanStart(d.localPosition),
+                    onPanUpdate: (d) =>
+                        controller.handlePanUpdate(d.localPosition),
                     child: CustomPaint(
-                      // Passa as duas listas de desenhos para o pintor.
                       painter: DrawingPainter(
                         activeStrokes: displayDrawings.activeStrokes,
                         inactiveStrokes: displayDrawings.inactiveStrokes,
@@ -131,7 +94,6 @@ class DrawingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 10.0
       ..style = PaintingStyle.stroke;
-
 
     _paintStrokes(canvas, inactiveStrokes, inactivePaint);
     _paintStrokes(canvas, activeStrokes, activePaint);

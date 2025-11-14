@@ -1,4 +1,4 @@
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
+import '../types.dart';
 import 'package:flutter/material.dart';
 
 class Stroke {

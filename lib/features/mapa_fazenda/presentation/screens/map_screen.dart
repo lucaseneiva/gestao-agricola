@@ -1,9 +1,12 @@
 import 'package:desafio_tecnico_arauc/core/theme/app_theme.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/widgets/map_screen_widgets.dart';
+import 'package:desafio_tecnico_arauc/features/mapa_fazenda/presentation/widgets/map_screen_widgets.dart';
+import '../controllers/date_controller.dart';
+import '../controllers/map_ui_controller.dart';
+import '../../domain/types.dart';
+import '../controllers/drawing_controller.dart';
 
 class MapaScreen extends ConsumerStatefulWidget {
   const MapaScreen({super.key});
@@ -19,8 +22,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
     super.initState();
     // Usamos addPostFrameCallback para garantir que o ref estará disponível.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final week = getWeekApiFormat(ref.read(currentDateProvider));
-      ref.read(farmDrawingsProvider.notifier).fetchDrawings(week);
+      ref.read(farmDrawingsProvider.notifier).fetchDrawingsForCurrentWeek();
     });
   }
 
@@ -31,7 +33,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
       final week = getWeekApiFormat(next);
       // Evita buscar novamente se a semana for a mesma
       if (getWeekApiFormat(previous!) != week) {
-        ref.read(farmDrawingsProvider.notifier).fetchDrawings(week);
+        ref.read(farmDrawingsProvider.notifier).fetchDrawingsForCurrentWeek();
       }
     });
 
@@ -95,10 +97,8 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
                     ],
                   ),
                 ).then((confirmed) {
-                  // Usamos .then() pois showDialog é um Future
                   if (confirmed == true) {
-                    // CHAMA O NOVO MÉTODO LOCAL
-                    drawingNotifier.clearAllForCurrentWeekLocally();
+                    drawingNotifier.clearCurrentWeek();
                   }
                 });
               },
@@ -119,7 +119,7 @@ class _MapaScreenState extends ConsumerState<MapaScreen> {
             onPressed: () async {
               print("CLicou botao");
               if (screenMode == ScreenMode.editing) {
-                await drawingNotifier.saveDrawings();
+                await drawingNotifier.saveCurrentWeek();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Desenho salvo com sucesso!'),

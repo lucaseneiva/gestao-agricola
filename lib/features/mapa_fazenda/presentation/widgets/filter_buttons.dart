@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:desafio_tecnico_arauc/features/mapa_fazenda/ui/providers/mapa_state_providers.dart';
+import '../../domain/types.dart';
+import '../controllers/map_ui_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FilterButtons extends ConsumerWidget {

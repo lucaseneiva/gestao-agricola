@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
-import '../providers/mapa_state_providers.dart';
+import '../controllers/date_controller.dart';
 
 class WeekSelector extends ConsumerWidget {
   const WeekSelector({super.key});

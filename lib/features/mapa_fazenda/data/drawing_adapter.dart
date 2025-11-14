@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../domain/entities/drawing.dart';
 import '../domain/entities/stroke.dart';
-import '../ui/providers/mapa_state_providers.dart';
+import '../domain/types.dart';
 
 class DrawingAdapter {
   static String toJson(Drawing drawing) {
