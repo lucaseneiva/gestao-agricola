@@ -31,7 +31,7 @@ String getWeekDisplayFormat(DateTime date) {
   final weekNumber = _getWeekNumber(date);
   // Encontra o primeiro dia (Segunda) e o último (Domingo) da semana
   final firstDayOfWeek = date.subtract(Duration(days: date.weekday - 1));
-  final lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 6));
+  final lastDayOfWeek = firstDayOfWeek.add(const Duration(days: 7));
 
   final formatter = DateFormat('dd/MM');
   return 'Semana $weekNumber (${formatter.format(firstDayOfWeek)} - ${formatter.format(lastDayOfWeek)})';
