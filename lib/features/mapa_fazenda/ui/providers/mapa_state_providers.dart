@@ -1,7 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:desafio_tecnico_arauc/core/utils/date_formater.dart';
-
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/map_repository.dart';
 import 'package:desafio_tecnico_arauc/features/mapa_fazenda/data/drawing_adapter.dart';
 
@@ -17,10 +17,7 @@ class DisplayDrawings {
   final List<List<Offset>> activeStrokes;
   final List<List<Offset>> inactiveStrokes;
 
-  DisplayDrawings({
-    required this.activeStrokes,
-    required this.inactiveStrokes,
-  });
+  DisplayDrawings({required this.activeStrokes, required this.inactiveStrokes});
 }
 
 @riverpod
@@ -32,9 +29,7 @@ class CurrentTool extends _$CurrentTool {
 }
 
 @riverpod
-// 3. Criamos uma classe Notifier
 class CurrentDate extends _$CurrentDate {
-  // 4. O método build define o estado inicial
   @override
   DateTime build() {
     return DateTime.now();
@@ -82,30 +77,23 @@ class FarmDrawings extends _$FarmDrawings {
     return {};
   }
 
+  // Limpa locamente os desenhos para a semana atual
   void clearAllForCurrentWeekLocally() {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
 
-    // Se não há nada para limpar, não faz nada.
     if (!state.containsKey(week) || state[week]!.isEmpty) return;
-    
-    // Atualiza o estado local, substituindo os dados da semana por um mapa vazio.
-    // Isso apaga pragas e doenças da memória do app para esta semana.
-    state = {
-      ...state,
-      week: {}, 
-    };
-    
-    // Nenhuma chamada à API aqui. A limpeza só será persistida
-    // quando o usuário clicar no botão "Salvar".
-}
 
+    state = {...state, week: {}};
+  }
+
+  // Remove uma stroke específica localmente
   void removeStroke(List<Offset> strokeToRemove) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
     final issue = ref.read(selectedIssueProvider);
     if (issue == null) return;
 
     final currentStrokes = List<List<Offset>>.from(state[week]?[issue] ?? []);
-    currentStrokes.remove(strokeToRemove); // Remove o traço da lista
+    currentStrokes.remove(strokeToRemove);
 
     state = {
       ...state,
@@ -113,9 +101,8 @@ class FarmDrawings extends _$FarmDrawings {
     };
   }
 
-  // NOVO MÉTODO: Busca os desenhos para uma semana específica
+  // Busca os desenhos para uma semana específica
   Future<void> fetchDrawings(String week) async {
-    // Se já temos os dados para essa semana, não busca de novo.
     if (state.containsKey(week)) return;
 
     final repo = ref.read(mapaRepositoryProvider);
@@ -124,20 +111,17 @@ class FarmDrawings extends _$FarmDrawings {
     try {
       final drawingsMap = await repo.getDraw(week);
       final drawings = DrawingAdapter.fromMap(drawingsMap ?? {});
-      
-      // Atualiza o estado com os dados da semana buscada
+
       state = {...state, week: drawings};
     } catch (e) {
-      // Aqui você poderia lidar com o erro, por exemplo, mostrando uma SnackBar
-      print("Erro ao buscar desenhos: $e");
+      if (kDebugMode) print("Erro ao buscar desenhos: $e");
     } finally {
       ref.read(isLoadingProvider.notifier).state = false;
     }
   }
 
-  // NOVO MÉTODO: Salva os desenhos da semana atual na API
+  // Salva os desenhos da semana atual na API
   Future<void> saveDrawings() async {
-    print("Entrou no provider");
     final repo = ref.read(mapaRepositoryProvider);
     final week = getWeekApiFormat(ref.read(currentDateProvider));
     final drawingsForWeek = state[week] ?? {};
@@ -146,40 +130,14 @@ class FarmDrawings extends _$FarmDrawings {
     try {
       final jsonString = DrawingAdapter.toJson(drawingsForWeek);
       await repo.saveDraw(week, jsonString);
-      // Opcional: mostrar um feedback de sucesso (SnackBar)
     } catch (e) {
-      print("Erro ao salvar desenhos: $e");
+      if (kDebugMode) print("Erro ao salvar desenhos: $e");
     } finally {
       ref.read(isLoadingProvider.notifier).state = false;
     }
   }
 
-  // MÉTODO MODIFICADO: Limpa o desenho local E o remoto
-  Future<void> clear() async {
-    final repo = ref.read(mapaRepositoryProvider);
-    final week = getWeekApiFormat(ref.read(currentDateProvider));
-    final issue = ref.read(selectedIssueProvider);
-    if (issue == null) return;
-
-    ref.read(isLoadingProvider.notifier).state = true;
-    try {
-      // Atualiza o estado local
-      final weekData = state[week] ?? {};
-      weekData[issue] = [];
-      state = {...state, week: weekData};
-
-      // Salva o estado atualizado (com o item limpo) na API
-      await saveDrawings();
-      // Nota: Uma abordagem alternativa seria chamar repo.deleteDraw(week),
-      // mas isso apagaria pragas E doenças. Salvar o estado atualizado é mais seguro.
-    } catch (e) {
-      print("Erro ao limpar desenho: $e");
-    } finally {
-      ref.read(isLoadingProvider.notifier).state = false;
-    }
-  }
-
-  // Os métodos startStroke e addPoint continuam os mesmos
+  
   void startStroke(Offset point) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
     final issue = ref.read(selectedIssueProvider);
@@ -200,10 +158,8 @@ class FarmDrawings extends _$FarmDrawings {
   void addPoint(Offset point) {
     final week = getWeekApiFormat(ref.read(currentDateProvider));
     final issue = ref.read(selectedIssueProvider);
-    if (issue == null ||
-        state[week]?[issue] == null ||
-        state[week]![issue]!.isEmpty)
-      return;
+
+    if (issue == null || state[week]?[issue] == null || state[week]![issue]!.isEmpty) return;
 
     final currentDrawing = state[week]?[issue] ?? [];
     final lastStroke = [...currentDrawing.last, point];
@@ -223,7 +179,7 @@ class FarmDrawings extends _$FarmDrawings {
 DisplayDrawings displayDrawings(Ref ref) {
   // Observa o provider principal que contém TODOS os desenhos
   final allDrawings = ref.watch(farmDrawingsProvider);
-  
+
   // Observa a data e o tipo de problema selecionado
   final week = getWeekApiFormat(ref.watch(currentDateProvider));
   final selectedIssue = ref.watch(selectedIssueProvider);
@@ -237,8 +193,8 @@ DisplayDrawings displayDrawings(Ref ref) {
   final weekDrawings = allDrawings[week] ?? {};
 
   // Define qual é o problema "inativo"
-  final inactiveIssue = selectedIssue == IssueType.pest 
-      ? IssueType.disease 
+  final inactiveIssue = selectedIssue == IssueType.pest
+      ? IssueType.disease
       : IssueType.pest;
 
   // Busca as listas de traços para cada um
