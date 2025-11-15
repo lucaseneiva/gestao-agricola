@@ -31,7 +31,7 @@ class FarmMapView extends ConsumerWidget {
               children: [
                 // Camada 1: O mapa da fazenda em SVG.
                 SvgPicture.asset(
-                  'assets/images/fazenda_murilo_p.svg',
+                  'assets/images/fazenda_murilo_p_2.svg',
                   width: artboardSize.width,
                   height: artboardSize.height,
                 ),
