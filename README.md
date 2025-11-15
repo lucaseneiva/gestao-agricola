@@ -81,11 +81,12 @@ E o resultado? Um mapa sob medida pro Murilo. Não é genérico. É DELE. Dá at
 
 **Original:**
 
-<img width="387" height="627" alt="Captura de tela 2025-11-12 142336" src="https://github.com/user-attachments/assets/4fd93b75-7611-4c40-8179-9401bf1fef96" />
+<img width="448" height="658" alt="Captura de tela 2025-11-15 072237" src="https://github.com/user-attachments/assets/6f81f461-8194-4936-83cb-0400febe651c" />
+
 
 **Depois da transformação:**
 
-<img width="800" height="1280" alt="Generated Image November 12, 2025 - 2_28PM-Photoroom" src="https://github.com/user-attachments/assets/d010f890-ac47-4f70-b829-070ed628c109" />
+<img width="800" height="1280" alt="Generated Image November 15, 2025 - 7_23AM-Photoroom" src="https://github.com/user-attachments/assets/99d2c5da-fe98-4e4f-b611-b10131276611" />
 
 ## Onde a Coisa Ficou Interessante (A Parte Que Me Fez Sofrer 😭)
 
@@ -133,7 +134,7 @@ lib/features/mapa_fazenda/
 
 **Por que essa organização faz sentido?**
 
-- **data/**: Conversa com a API. O `MapaRepository` abstrai tudo do backend. Se amanhã a API mudar pra GraphQL ou sei lá o que, só mexo aqui e a UI continua feliz da vida sem saber de nada. Olha que belezinha.
+- **data/**: Conversa com a API. O `MapaRepository` abstrai tudo do backend. Se amanhã a API mudar pra GraphQL ou sei lá o que, só mexo aqui e a UI continua feliz da vida sem saber de nada.
 
 - **domain/**: As entidades e interfaces. O coração da regra de negócio mesmo. 
 
@@ -145,7 +146,7 @@ lib/features/mapa_fazenda/
 - Quer testar? Tranquilo... cada controller é independente
 - Feature nova? Cria uma pasta nova, vida que segue, zero conflito com o resto
 
-Essa arquitetura não é over-engineering não. É o que eu chamo de **engenharia preventiva** mesmo. A diferença é que uma te salva no futuro, a outra te enterra em dívida técnica. E sim, eu vi os vídeos do Filipe Deschamps provocando geral sobre isso 🥲
+Essa arquitetura não é over-engineering não. É o que eu chamo de **engenharia preventiva** mesmo. A diferença é que uma te salva no futuro, a outra te enterra em dívida técnica. E sim, eu vi os vídeos do Filipe Deschamps provocando geral sobre isso
 
 ## Algumas Decisões Técnicas Importantes
 
