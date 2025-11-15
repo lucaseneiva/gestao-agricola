@@ -212,7 +212,7 @@ Foi desafiador, frustrante em alguns momentos (aquele `FarmMapView` me assombrou
 
 Lembra de toda aquela discussão ali em cima sobre Google Maps vs SVG? Aquela "dicotomia shakespeariana" (fui chique agora 😂) entre um mapa estático focado e um mapa interativo complexo? Pois então, o resultado mais dahora da arquitetura que eu escolhi é que **essa decisão vira reversível**.
 
-Vamos imaginar um cenário: o app do Murilo faz sucesso, ele espalha no grupo de WhatsApp dos produtores de morango, e de repente a parada cresce. Agora a prioridade mudou pra uma plataforma multi-fazendas onde ter um mapa interativo de verdade faz sentido.
+Vamos imaginar um cenário: o app do Murilo faz sucesso, ele espalha no grupo do zap dos produtores de morango, e de repente a parada cresce. Agora a prioridade mudou pra uma plataforma multi-fazendas onde ter um mapa interativo de verdade faz sentido.
 
 **E aí, ferrou tudo? Tem que reescrever o app inteiro?**
 
