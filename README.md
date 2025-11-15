@@ -40,7 +40,7 @@ Aqui foi outro ponto importante. Eu podia ter ido pelo caminho "rápido e safado
 
 **Mas aí parei pra pensar né...**
 
-Cara, case técnico não é só sobre fazer SÓ funcionar. Não é sobre dar ctrl+c ctrl+v do Figma pro Flutter. É sobre demonstrar **como você pensa em arquitetura de software de verdade**. E mais: a Arauc é uma startup pequena. O Miguel é o único dev lá. Se ele me contratar, eu não posso entregar um código que só EUZINHO entendo, sabe? Precisa ser um código que:
+Cara, case técnico não é só sobre fazer SÓ simplesmente funcionar. Não é sobre só dar ctrl+c ctrl+v do Figma pro Flutter. Eu também acho que é sobre demonstrar **como você pensa em arquitetura de software de verdade**. E mais: a Arauc é uma startup pequena. O Miguel é o único dev lá. Se ele me contratar, eu não posso entregar um código que só EU entendo, sabe? Precisa ser um código que:
 
 1. Ele consiga entender sem ser graduado em arquitetura de software quântica
 2. O cara que continuar o código no futuro não xingue a minha mãe... 😭
