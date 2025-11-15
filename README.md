@@ -172,6 +172,9 @@ A API guarda tudo na nuvem. Localmente, só rola um cache temporário enquanto o
 
 O app tá rodando lisinho, organizado e pronto pra evoluir. Ficou uma ferramenta que atende direitinho o que o Murilo precisa, com uma interface que não precisa de manual de 50 páginas pra usar e um código que não vai virar aquele frankenstein daqui uns meses (eu espero... 😂).
 
+**Ah, e sobre as cores...**
+O Figma tinha aquele esquema de azul pra pragas e vermelho pra doenças. Mas eu resolvi experimentar uma coisa diferente: destaca só o que você tá olhando no momento (fica vermelho) e deixa o resto em cinza. Achei que ficava menos cluttered visualmente, sabe? Tipo, ao invés de ter duas cores competindo pela atenção do cara, você foca numa coisa de cada vez. Testei e achei interessante também. Nesse caso ficaria pra colher o feedback e ver qual funciona melhor. 
+
 ![Gravação de Tela 2025-11-15 100724](https://github.com/user-attachments/assets/a0cc38ec-aa9e-4342-b2b9-26de8c8023b1)
 
 
