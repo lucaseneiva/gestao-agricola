@@ -84,7 +84,9 @@ O app tá rodando lisinho, organizado e pronto pra evoluir. Ficou uma ferramenta
 
 ## Reflexão Final
 
-Cara, esse desafio foi definitivamente um... desafio... mas foi legal demais também de resolver. Explorei áreas novas do Flutter, tive que tomar umas decisões arquiteturais difíceis e, no fim, consegui resolver um problema real de um jeito que eu achei bem pragmático. É isso aí! Menos é mais, desde que seja o "menos" certo!!!
+Cara, esse desafio foi definitivamente um... desafio... mas foi legal demais também de resolver. Explorei áreas novas do Flutter, tive que tomar umas decisões arquiteturais difíceis e, no fim, consegui resolver um problema real de um jeito que eu achei bem pragmático. É isso aí! Menos é mais, desde que seja o "menos" certo!!! Cara, esse desafio foi definitivamente um... desafio... mas foi legal demais de resolver. Explorei áreas novas do Flutter, tive que tomar umas decisões arquiteturais difíceis e, no fim, consegui resolver um problema real de um jeito que eu achei bem pragmático. É isso aí! Menos é mais, desde que seja o "menos" certo!!!
+Olha, eu sei que ainda dá pra melhorar algumas coisas - tipo criar snackbars de erro no map_screen.dart, dividir um pouco mais as responsabilidades... Mas decidi encerrar por aqui porque acho que já demonstra bem do que sou capaz (e pra eu não cair na armadilha da refatoração eterna também 😂), e tô doido pra retomar meus outros projetos em Flutter.
+Enfim, espero que gostem!
 
 ---
 
