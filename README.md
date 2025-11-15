@@ -170,7 +170,7 @@ A API guarda tudo na nuvem. Localmente, só rola um cache temporário enquanto o
 
 ## E Aí, Como Ficou?
 
-O app tá rodando lisinho, organizado e pronto pra evoluir. Ficou uma ferramenta que atende direitinho o que o Murilo precisa, com uma interface que não precisa de manual de 50 páginas pra usar e um código que não vai virar aquele frankenstein daqui uns meses (eu espero... 😂).
+O app tá rodando lisinho, organizado e pronto pra evoluir. Ficou uma ferramenta que atende direitinho o que o Murilo precisa, com uma interface que não precisa de manual de 50 páginas pra usar e um código que não vai virar aquele espaguete daqui uns meses (eu espero... 😂).
 
 **Ah, e sobre as cores...**
 O Figma tinha aquele esquema de azul pra pragas e vermelho pra doenças. Mas eu resolvi experimentar uma coisa diferente: destaca só o que você tá olhando no momento (fica vermelho) e deixa o resto em cinza. Achei que ficava menos cluttered visualmente, sabe? Tipo, ao invés de ter duas cores competindo pela atenção do cara, você foca numa coisa de cada vez. Testei e achei interessante também. Nesse caso ficaria pra colher o feedback e ver qual funciona melhor. 
