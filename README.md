@@ -57,7 +57,7 @@ Imagina: amanhã o Murilo liga e fala "cara, AMEI o app, mas agora eu quero gere
 - Sigo a mesma estrutura que já tá lá prontinha só esperando
 - Zero impacto no código do mapa (não preciso ficar com medo de quebrar algo)
 - Adiciono uma rota no GoRouter
-- Pronto, life goes on beatufully
+- Pronto, life goes on beautifully
 
 Sabe qual a diferença entre isso e um protótipo? Isso aqui é código de produto. Código que tá pronto pra crescer sem virar uma bola de neve de dívida técnica.
 
