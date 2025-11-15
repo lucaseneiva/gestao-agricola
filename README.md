@@ -1,7 +1,7 @@
 # Desafio Técnico Arauc - Gestão Agrícola para a Fazenda do Murilo 🍓
 
 
-Este aqui é o README do meu projeto pro desafio da Arauc. Mas não é só mais um README genérico não, é mais uma conversa onde eu conto como pensei esse desafio. Eu resolvi transformar em PDF e facilitar a leitura, pois eu acho muito importante pra entender como a minha cabeça funciona pra resolver problemas. Passou de 5 linhas? Sim... Mas eu prometo que vale a pena 😜
+Este aqui é o README do meu projeto pro desafio da Arauc. Mas não é só mais um README genérico não, é mais uma conversa onde eu conto como pensei esse desafio. Seria legal dar uma lida, pois eu acho muito importante pra entender como a minha cabeça funciona pra resolver problemas. Passou de 5 linhas? Sim... Mas eu prometo que vale a pena 😜
 
 ## Como Tudo Começou
 
