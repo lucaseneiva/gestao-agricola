@@ -1,4 +1,4 @@
-# Gestão Agrícola para a Fazenda de morangos 🍓
+# Gestão Agrícola para uma Fazenda de Morangos 🍓
 
 
 Este aqui é o README. Mas não é só mais um README genérico não, é mais uma conversa onde eu conto como pensei esse desafio. Seria legal dar uma lida, pois eu acho muito importante pra entender como a minha cabeça funciona pra resolver problemas. Passou de 5 linhas? Sim... Mas eu prometo que vale a pena 😜
